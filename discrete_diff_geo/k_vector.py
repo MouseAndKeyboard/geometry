@@ -1,5 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import math
+
 
 class kVector():
     def __init__(self, oneVector):
@@ -145,3 +147,49 @@ class kVector():
 
     def __repr__(self) -> str:
         return self.__str__()
+    
+
+    def plot(self, ax=None):
+        if self.vector_dim != 3:
+            raise ValueError(f"Can only plot 3-dimensional vectors.")
+        
+        if self.k > 2:
+            raise ValueError(f"Can only plot 1-vectors and 2-vectors.")
+        
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+
+        if self.k == 1:
+            ax.quiver(0, 0, 0, self.coefficients[(0,)], self.coefficients[(1,)], self.coefficients[(2,)])
+
+            # calculate the axis limits
+            max_val = max([abs(self.coefficients[(0,)]), abs(self.coefficients[(1,)]), abs(self.coefficients[(2,)])])
+
+            ax.set_xlim(-max_val, max_val)
+            ax.set_ylim(-max_val, max_val)
+            ax.set_zlim(-max_val, max_val)
+
+            return ax
+
+        if self.k == 2:
+            # Define the coordinates of the unit square in the xy, xz, and yz planes
+            unit_square_xy = np.array([[0, 1, 1, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 0, 0]])
+            unit_square_xz = np.array([[0, 1, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 1, 0]])
+            unit_square_yz = np.array([[0, 0, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 0]])
+
+            # Scale the unit squares by the coefficients of the 2-vector
+            square_xy = self.get_coefficient((0, 1)) * unit_square_xy
+            square_xz = self.get_coefficient((0, 2)) * unit_square_xz
+            square_yz = self.get_coefficient((1, 2)) * unit_square_yz
+
+            # Plot the squares
+            ax.plot(square_xy[0], square_xy[1], square_xy[2])
+            ax.plot(square_xz[0], square_xz[1], square_xz[2])
+            ax.plot(square_yz[0], square_yz[1], square_yz[2])
+
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+
+            return ax
